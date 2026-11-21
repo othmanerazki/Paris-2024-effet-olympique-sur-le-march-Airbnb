@@ -1,66 +1,31 @@
-import os
-import re
 import pandas as pd
 import s3fs
-import numpy as np
+from urllib.parse import quote
 
-def charger_tous_les_fichiers(chemin_dossier, bucket=None, mettre_dans_globals=False):
-    if bucket is None:
-        bucket = os.getenv("AWS_STORAGE_USER") or os.getenv("USER") or "etiennealpy"
-    
-    chemin_dossier = chemin_dossier.strip("/")
-    dossier_s3 = f"{bucket}/{chemin_dossier}"
-    
-    
-    endpoint_url = os.getenv("AWS_S3_ENDPOINT", "https://minio.lab.sspcloud.fr")
-    if not endpoint_url.startswith("http"):
-        endpoint_url = f"https://{endpoint_url}"
-    
-    fs = s3fs.S3FileSystem(
-        client_kwargs={'endpoint_url': endpoint_url}
-    )
-    
-    fichiers_s3 = fs.ls(dossier_s3)
-    dataframes = {}
-    
-    print(f"--- Recherche dans : s3://{dossier_s3} ---")
-    
-    for fichier_path in fichiers_s3:
-        nom_fichier = os.path.basename(fichier_path)
-        
-        if fs.isdir(fichier_path) or nom_fichier.startswith("."):
-            continue
-            
-        nom_cle = re.sub(r'\.(csv|gz|parquet)$', '', nom_fichier, flags=re.IGNORECASE)
-        nom_cle = re.sub(r'\.(csv|gz)$', '', nom_cle, flags=re.IGNORECASE)
-        nom_cle = re.sub(r'[^a-zA-Z0-9_]', '_', nom_cle)
-        
-        s3_url = f"s3://{fichier_path}"
-        
-        try:
-          
-            with fs.open(s3_url, 'rb') as f:
-                if nom_fichier.endswith('.parquet'):
-                    df = pd.read_parquet(f)
-                else:
-                    df = pd.read_csv(f)
-                
-            dataframes[nom_cle] = df
-            print(f"Chargé : {nom_fichier} -> Variable : '{nom_cle}'")
-            
-            if mettre_dans_globals:
-                globals()[nom_cle] = df
-                
-        except Exception as e:
-            print(f"Erreur sur {nom_fichier}: {e}")
-            
-    return dataframes
+#Cette méthode permet de télécharger les données directement depuis mon bucket privé sur SSP Cloud
+#Pas besoin de se les transférer par mail donc
 
-# il faut remplacer le etiennealpy par votre compte SSP cloud et nommer le fichier de la même manière
-données=charger_tous_les_fichiers("données paris")
-print(données)
+fs = s3fs.S3FileSystem(
+    anon=True, client_kwargs={"endpoint_url": "https://minio.lab.sspcloud.fr"}
+)
 
-def distance_euclidienne(x1,y1,x2,y2):
-    distance=np.sqrt((x1-x2)**2+(y1-y2)**2)
-    return(distance)
+#Je vérifie que tous les fichiers ont été trouvés (il y en a 12 normalement)
+files = fs.find("etiennealpy/données paris")
+print(len(files))
 
+dfs = {}
+for f in files:
+  if f.lower().endswith(".csv"):
+    try:
+      url = f"https://minio.lab.sspcloud.fr/{quote(f, safe='/')}"
+      name = f.split("/")[-1]
+      dfs[name] = pd.read_csv(url)
+      print(name)
+    except Exception as e:
+      print(e)
+
+#Une dernière petite vérification : est-ce que tous les fichiers sont différents ?
+
+for name, df in dfs.items():
+  print(f"--- {name} ---")
+  print(df.head(2))
