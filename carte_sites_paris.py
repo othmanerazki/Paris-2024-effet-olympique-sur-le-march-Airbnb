@@ -36,11 +36,17 @@ DOSSIER = Path(__file__).resolve().parent
 CONTOURS = DOSSIER / "contours_arrondissements.geojson"
 SITES = DOSSIER / "donnees_sites" / "donnees_nettoyees.csv"
 FICHIERS = {
+    "janvier": "etiennealpy/données paris/listing_13_janvier_2024",
+    "fevrier": "etiennealpy/données paris/listing_14_fevrier_2024",
+    "avril": "etiennealpy/données paris/listing_17_avril_2024.csv",
     "mai": "etiennealpy/données paris/listing_11_mai_2024.csv",
     "juin": "etiennealpy/données paris/listing_10_juin_2024",
     "juillet": "etiennealpy/données paris/listing_14_juillet_2024.csv",
     "aout": "etiennealpy/données paris/listing_09_aout_2024.csv",
     "septembre": "etiennealpy/données paris/listing_6_septembre_2024",
+    "octobre": "etiennealpy/données paris/listing_07_octobre_2024.csv",
+    "novembre": "etiennealpy/données paris/listing_09_novembre_2024.csv",
+    "decembre": "etiennealpy/données paris/listing_16_decembre_2024",
 }
 # Bornes fixes communes à toutes les cartes : les valeurs situées au-delà des
 # bornes utilisent les couleurs extrêmes de la légende.
@@ -75,7 +81,7 @@ def charger_annonces(mois):
     chemin = FICHIERS[mois]
     print(f"Chargement des annonces : {chemin} ...", flush=True)
     url = "https://minio.lab.sspcloud.fr/" + quote(chemin, safe="/")
-    df = pd.read_csv(url, usecols=["id", "latitude", "longitude", "price", "last_scraped", "room_type"], dtype={"price": "string"})
+    df = pd.read_csv(url, usecols=["id", "latitude", "longitude", "price", "last_scraped", "room_type", "availability_30"], dtype={"price": "string"})
     df["prix"] = pd.to_numeric(df["price"].str.replace(r"[^\d.\-]", "", regex=True), errors="coerce")
     for colonne in ("latitude", "longitude"):
         df[colonne] = pd.to_numeric(df[colonne], errors="coerce")
