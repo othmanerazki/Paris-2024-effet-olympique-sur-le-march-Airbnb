@@ -6,6 +6,7 @@ Les prix affichés sont issus des annonces, pas des réservations.
 """
 import argparse
 import csv
+from functools import lru_cache
 import json
 import math
 import os
@@ -35,10 +36,16 @@ DOSSIER = Path(__file__).resolve().parent
 CONTOURS = DOSSIER / "contours_arrondissements.geojson"
 SITES = DOSSIER / "donnees_sites" / "donnees_nettoyees.csv"
 FICHIERS = {
+    "mai": "etiennealpy/données paris/listing_11_mai_2024.csv",
+    "juin": "etiennealpy/données paris/listing_10_juin_2024",
     "juillet": "etiennealpy/données paris/listing_14_juillet_2024.csv",
     "aout": "etiennealpy/données paris/listing_09_aout_2024.csv",
     "septembre": "etiennealpy/données paris/listing_6_septembre_2024",
 }
+# Bornes fixes communes à toutes les cartes : les valeurs situées au-delà des
+# bornes utilisent les couleurs extrêmes de la légende.
+PRIX_MIN_ECHELLE = 100
+PRIX_MAX_ECHELLE = 350
 SITES_PARIS = {"BCY", "CDM", "SP1", "SP4", "SP6", "CPL", "GRP", "HDV", "INV",
                "LCO", "LC1", "LC2", "LC3", "LC4", "PDP", "ALX", "RGA", "EIF", "TRO"}
 MONUMENTS = [("Arc de Triomphe", 48.8738, 2.2950), ("Tour Eiffel", 48.8584, 2.2945),
@@ -63,16 +70,34 @@ def charger_sites():
     return list(sites.values())
 
 
+@lru_cache(maxsize=1)
 def charger_annonces(mois):
     chemin = FICHIERS[mois]
     print(f"Chargement des annonces : {chemin} ...", flush=True)
     url = "https://minio.lab.sspcloud.fr/" + quote(chemin, safe="/")
-    df = pd.read_csv(url, usecols=["id", "latitude", "longitude", "price", "last_scraped"], dtype={"price": "string"})
-    df = df.drop_duplicates("id").copy()
-    df["prix"] = pd.to_numeric(df["price"].str.replace(r"[^\d.]", "", regex=True), errors="coerce")
+    df = pd.read_csv(url, usecols=["id", "latitude", "longitude", "price", "last_scraped", "room_type"], dtype={"price": "string"})
+    df["prix"] = pd.to_numeric(df["price"].str.replace(r"[^\d.\-]", "", regex=True), errors="coerce")
     for colonne in ("latitude", "longitude"):
         df[colonne] = pd.to_numeric(df[colonne], errors="coerce")
-    return df.dropna(subset=["id", "latitude", "longitude"])
+    return df
+
+
+def preparer_population(df, paris):
+    """Une ligne par identifiant : sépare les exclusions de l'analyse parisienne."""
+    df = df.copy()
+    lignes = len(df)
+    sans_id = int(df.id.isna().sum())
+    df = df.dropna(subset=["id"])
+    doublons = int(df.duplicated("id").sum())
+    df = df.drop_duplicates("id").copy()
+    sans_coord = int(df[["latitude", "longitude"]].isna().any(axis=1).sum())
+    df = df.dropna(subset=["latitude", "longitude"])
+    masque = contains_xy(paris, df.longitude.to_numpy(), df.latitude.to_numpy())
+    hors_paris = int((~masque).sum())
+    df = df.loc[masque].copy()
+    df["prix_valide"] = df.prix.notna() & (df.prix > 0)
+    return df, {"lignes": lignes, "sans_id": sans_id, "doublons": doublons,
+                "sans_coord": sans_coord, "hors_paris": hors_paris}
 
 
 def ajouter_icone_monument(ax, nom, lon, lat):
@@ -94,32 +119,38 @@ def ajouter_icone_monument(ax, nom, lon, lat):
     ax.add_artist(AnnotationBbox(zone, (lon, lat), frameon=False, pad=0, zorder=10))
 
 
-def creer_carte(mois="aout", afficher=True):
+def creer_carte(mois="aout", afficher=True, type_logement="tous"):
+    seuil = 5
     dossier_cartes = DOSSIER / "cartes prix"
     dossier_cartes.mkdir(exist_ok=True)
-    sortie = dossier_cartes / f"carte_prix_paris_{mois}.png"
+    dossier_controles = dossier_cartes / "analyses complementaires"
+    if type_logement != "tous":
+        dossier_controles.mkdir(exist_ok=True)
+        sortie = dossier_controles / f"carte_prix_paris_{mois}_{type_logement}.png"
+    else:
+        sortie = dossier_cartes / f"carte_prix_paris_{mois}.png"
     contours = json.loads(CONTOURS.read_text(encoding="utf-8"))["features"]
     geometries = [shape(f["geometry"]) for f in contours]
     if len(geometries) != 20:
         raise ValueError("Le fichier des contours doit contenir les 20 arrondissements.")
     paris = unary_union(geometries)
     sites = charger_sites()
-    annonces = charger_annonces(mois)
-    annonces = annonces.loc[contains_xy(paris, annonces.longitude.to_numpy(), annonces.latitude.to_numpy()) & annonces.prix.notna() & (annonces.prix > 0)].copy()
+    parisien, controles = preparer_population(charger_annonces(mois), paris)
+    annonces = parisien.loc[parisien.prix_valide].copy()
+    types = {"entiers": "Entire home/apt", "chambres": "Private room"}
+    if type_logement != "tous":
+        annonces = annonces.loc[annonces.room_type == types[type_logement]].copy()
     if annonces.empty:
         raise ValueError("Aucune annonce avec prix exploitable à Paris.")
     pas_lon, pas_lat = 0.0034, 0.00225  # Mailles d'environ 250 mètres.
     annonces["x"] = np.floor(annonces.longitude / pas_lon).astype(int)
     annonces["y"] = np.floor(annonces.latitude / pas_lat).astype(int)
     mailles = annonces.groupby(["x", "y"])["prix"].agg(["median", "count"]).reset_index()
-    mailles = mailles.loc[mailles["count"] >= 5]
+    mailles = mailles.loc[mailles["count"] >= seuil]
     if mailles.empty:
-        raise ValueError("Aucune maille n'a au moins cinq prix.")
+        raise ValueError(f"Aucune maille n'a au moins {seuil} prix pour {type_logement}.")
     dates = pd.to_datetime(annonces["last_scraped"], errors="coerce").dropna()
     dates_texte = f"{dates.min():%d/%m/%Y}–{dates.max():%d/%m/%Y}" if not dates.empty else "dates non renseignées"
-    vmin, vmax = np.percentile(mailles["median"], [5, 95])
-    if vmin == vmax:
-        vmax = vmin + 1
 
     fig = plt.figure(figsize=(15, 10), facecolor="#f6f8fb")
     ax = fig.add_axes([0.06, 0.22, 0.88, 0.64])
@@ -129,7 +160,7 @@ def creer_carte(mois="aout", afficher=True):
             x, y = poly.exterior.xy
             ax.fill(x, y, facecolor="#edf1f5", edgecolor="none", zorder=0)
     cases = [Rectangle((r.x * pas_lon, r.y * pas_lat), pas_lon, pas_lat) for r in mailles.itertuples()]
-    couleurs = PatchCollection(cases, cmap="YlOrRd", norm=Normalize(vmin=vmin, vmax=vmax, clip=True), edgecolor="none", zorder=1)
+    couleurs = PatchCollection(cases, cmap="YlOrRd", norm=Normalize(vmin=PRIX_MIN_ECHELLE, vmax=PRIX_MAX_ECHELLE, clip=True), edgecolor="none", zorder=1)
     couleurs.set_array(mailles["median"].to_numpy())
     ax.add_collection(couleurs)
     chemins = []
@@ -173,8 +204,9 @@ def creer_carte(mois="aout", afficher=True):
     ax.set_aspect(1 / math.cos(math.radians(48.86)))
     ax.axis("off")
     fig.text(.07, .95, "Paris 2024", fontsize=27, weight="bold", color="#15334e")
-    fig.text(.07, .908, "Prix Airbnb et sites des Jeux", fontsize=17, color="#34586c")
-    fig.text(.07, .878, f"Prix affiché médian par zone · fichier {mois} 2024 · collectes : {dates_texte}", fontsize=11, color="#60788a")
+    titres_types = {"tous": "Tous types de logements", "entiers": "Logements entiers", "chambres": "Chambres privées"}
+    fig.text(.07, .908, "Prix affiché médian des annonces Airbnb à Paris", fontsize=17, color="#34586c")
+    fig.text(.07, .878, f"Collecte : {dates_texte} · {titres_types[type_logement]} · fichier {mois} 2024", fontsize=11, color="#60788a")
     bar = fig.colorbar(couleurs, cax=fig.add_axes([.14, .175, .49, .016]), orientation="horizontal", extend="both")
     bar.set_label("Prix médian affiché (dollars)", fontsize=10)
     fig.legend(handles=[
@@ -182,10 +214,10 @@ def creer_carte(mois="aout", afficher=True):
         Line2D([], [], marker="^", linestyle="none", markerfacecolor="#6a2499", markeredgecolor="none", markersize=9, label="Site paralympique"),
         Line2D([], [], marker="D", linestyle="none", markerfacecolor="#1a3682", markeredgecolor="none", markersize=8, label="Les deux Jeux"),
         Line2D([], [], marker="*", linestyle="none", markerfacecolor="#087b72", markeredgecolor="none", markersize=10, label="Monument (repère)"),
-        Line2D([], [], marker="s", linestyle="none", markerfacecolor="#edf1f5", markeredgecolor="#a6b4c1", markersize=9, label="Zone sans couleur : moins de 5 prix"),
+        Line2D([], [], marker="s", linestyle="none", markerfacecolor="#edf1f5", markeredgecolor="#a6b4c1", markersize=9, label=f"Moins de {seuil} prix renseignés"),
     ], loc="lower left", bbox_to_anchor=(.07, .065), ncol=3, frameon=False, fontsize=9)
-    fig.text(.07, .035, "Prix affichés, pas prix payés · Mailles d’au moins 5 prix · Sites placés selon leurs coordonnées géographiques.", fontsize=8, color="#475569")
-    fig.text(.07, .016, "Couleurs saturées aux 5e et 95e percentiles · Sources : Inside Airbnb, Ville de Paris, ministère des Sports, Région Île-de-France.", fontsize=8, color="#475569")
+    fig.text(.07, .035, f"Prix affichés, pas prix payés · Mailles d’au moins {seuil} prix · Sites placés selon leurs coordonnées géographiques.", fontsize=8, color="#475569")
+    fig.text(.07, .016, "Échelle fixe : 100–350 ; en dehors, couleurs extrêmes · Sources : Inside Airbnb, Ville de Paris, ministère des Sports, Région Île-de-France.", fontsize=8, color="#475569")
     # Remplacement atomique : évite de modifier directement une image ouverte.
     with tempfile.NamedTemporaryFile(suffix=".png", dir=dossier_cartes, delete=False) as fichier_temporaire:
         chemin_temporaire = Path(fichier_temporaire.name)
@@ -205,5 +237,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Carte des prix affichés autour des sites des Jeux de Paris 2024")
     parser.add_argument("--mois", choices=FICHIERS, default="aout")
     parser.add_argument("--sans-fenetre", action="store_true")
+    parser.add_argument("--analyse-complete", action="store_true", help="Créer les cartes complémentaires par type de logement.")
     args = parser.parse_args()
-    creer_carte(args.mois, afficher=not args.sans_fenetre)
+    if args.analyse_complete:
+        creer_carte(args.mois, afficher=False)
+        for type_logement in ("entiers", "chambres"):
+            creer_carte(args.mois, afficher=False, type_logement=type_logement)
+    else:
+        creer_carte(args.mois, afficher=not args.sans_fenetre)
