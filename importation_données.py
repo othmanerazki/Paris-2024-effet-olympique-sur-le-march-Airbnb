@@ -3,6 +3,24 @@ import s3fs
 from urllib.parse import quote
 
 
+
+
+def charger_un_mois(mois_recherche="octobre"):
+  fs = s3fs.S3FileSystem(
+      anon=True, client_kwargs={"endpoint_url": "https://minio.lab.sspcloud.fr"}
+  )
+  files = fs.find("etiennealpy/données paris")
+
+  for f in files:
+    nom_fichier = f.split("/")[-1].lower()
+    if "listing_" in nom_fichier and mois_recherche in nom_fichier:
+      url = f"https://minio.lab.sspcloud.fr/{quote(f, safe='/')}"
+      print(f"Téléchargement de {nom_fichier} en cours...")
+      return pd.read_csv(url)
+
+  return None
+
+
 def charger_donnees_paris():
   fs = s3fs.S3FileSystem(
       anon=True, client_kwargs={"endpoint_url": "https://minio.lab.sspcloud.fr"}
