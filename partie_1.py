@@ -1,27 +1,10 @@
 import matplotlib
 
-matplotlib.use("Agg")  # Force matplotlib à travailler en mode "sans affichage"
+matplotlib.use("Agg")  # Mode sans affichage direct
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import s3fs
-from urllib.parse import quote
-
-# Fonction optimisée pour charger un seul mois à la demande
-def charger_un_mois(mois_recherche="octobre"):
-  fs = s3fs.S3FileSystem(
-      anon=True, client_kwargs={"endpoint_url": "https://minio.lab.sspcloud.fr"}
-  )
-  files = fs.find("etiennealpy/données paris")
-
-  for f in files:
-    nom_fichier = f.split("/")[-1].lower()
-    if "listing_" in nom_fichier and mois_recherche in nom_fichier:
-      url = f"https://minio.lab.sspcloud.fr/{quote(f, safe='/')}"
-      print(f"Téléchargement de {nom_fichier} en cours...")
-      return pd.read_csv(url)
-
-  return None
+from importation_données import charger_donnees_paris
 
 
 def calculer_distance(lat1, lon1, lat2, lon2):
@@ -52,33 +35,44 @@ def analyser_prix_par_distance(df, lat_jo, lon_jo):
   return resultats
 
 
-# test sur la tour eiffel
-df_octobre = charger_un_mois("octobre")
+# --- EXÉCUTION ---
+print("Chargement de tous les mois de l'année...")
+dfs = charger_donnees_paris()
 
-if df_octobre is not None:
-  lat_jo = 48.8584
-  lon_jo = 2.2945
+lat_jo = 48.8584
+lon_jo = 2.2945
 
-  print("Calcul des distances et moyennes...")
-  res = analyser_prix_par_distance(df_octobre, lat_jo, lon_jo)
+print("Génération du graphique comparatif...")
+fig, ax = plt.subplots(figsize=(12, 8))
 
-  # Affichage des données dans le terminal pour vérification
-  print("Données prêtes à être tracées :")
-  print(res.head(10))
+# On parcourt chaque mois chargé dans le dictionnaire
+for mois, df in dfs.items():
+  if df is not None and not df.empty:
+    res = analyser_prix_par_distance(df, lat_jo, lon_jo)
+    # matplotlib attribue automatiquement une couleur différente à chaque courbe
+    ax.plot(
+        res["tranche_km"],
+        res["price_clean"],
+        marker="o",
+        linestyle="-",
+        label=mois,
+        alpha=0.8,
+    )
 
-  print("Enregistrement du graphique...")
-  fig, ax = plt.subplots(figsize=(10, 6))
+ax.set_xlabel("Distance au site des JO (km)", fontsize=12)
+ax.set_ylabel("Prix moyen (€)", fontsize=12)
+ax.set_title(
+    "Comparaison du prix moyen par tranche de distance - Tous les mois (Tour"
+    " Eiffel)",
+    fontsize=14,
+)
+ax.grid(True, linestyle="--", alpha=0.6)
 
-  ax.plot(res["tranche_km"], res["price_clean"], marker="o", linestyle="-")
-  ax.set_xlabel("Distance au site des JO (km)")
-  ax.set_ylabel("Prix moyen (€)")
-  ax.set_title("Prix moyen par tranche de distance - Octobre (Tour Eiffel)")
-  ax.grid(True)
+# Placement de la légende proprement sur le côté pour ne pas cacher les courbes
+ax.legend(title="Mois", bbox_to_anchor=(1.05, 1), loc="upper left")
 
+# Sauvegarde de l'image globale
+plt.savefig("graphique_tous_les_mois.png", bbox_inches="tight")
+plt.close()
 
-  plt.savefig("graphique_eiffel_octobre_v2.png", bbox_inches="tight")
-  plt.close()
-
-  print("Graphique sauvegardé avec succès sous graphique_eiffel_octobre_v2.png !")
-else:
-  print("Erreur : Fichier d'octobre introuvable.")
+print("Graphique de tous les mois sauvegardé sous 'graphique_tous_les_mois.png' !")
