@@ -14,6 +14,16 @@ import pandas as pd
 URL_SOURCE = "https://www.data.gouv.fr/api/1/datasets/r/5a0599d1-ad3f-42d1-b64c-204ee19cf520"
 DOSSIER_SORTIE = Path(__file__).resolve().parent / "donnees_sites"
 
+# Codes des points de la source situés dans les limites administratives de Paris.
+# Sélection vérifiée par croisement des coordonnées avec les arrondissements :
+# https://opendata.paris.fr/explore/dataset/arrondissements/
+# Cette liste fixe correspond aux sites du fichier actuel ; elle doit être revue
+# si la source change ou si un site couvre plusieurs communes.
+CODES_SITES_PARIS = {
+    "BCY", "CDM", "SP1", "SP4", "SP6", "CPL", "GRP", "HDV", "INV",
+    "LCO", "LC1", "LC2", "LC3", "LC4", "PDP", "ALX", "RGA", "EIF", "TRO",
+}
+
 # Corrections d'après les épreuves effectivement tenues ; les dates d'origine
 # restent disponibles dans les colonnes date_debut_source et date_fin_source.
 # Golf : les tournois ont eu lieu en août, pas en septembre.
@@ -97,6 +107,11 @@ def separer_sites(sites):
     return olympiques, paralympiques
 
 
+def garder_sites_paris(sites):
+    """Conserve les sites dont le point est situé dans Paris intra-muros."""
+    return sites.loc[sites["code_site"].isin(CODES_SITES_PARIS)].copy().reset_index(drop=True)
+
+
 def charger_tables_locales():
     """Charge les deux tables depuis le fichier nettoyé local."""
     fichier = DOSSIER_SORTIE / "donnees_nettoyees.csv"
@@ -110,11 +125,14 @@ def main():
     _, table = recuperer_sites()
     sites = preparer_sites(table)
     site_olympiques, site_paralympique = separer_sites(sites)
+    site_olympique_paris = garder_sites_paris(site_olympiques)
+    site_paralympiques_paris = garder_sites_paris(site_paralympique)
     DOSSIER_SORTIE.mkdir(exist_ok=True)
     sites.to_csv(DOSSIER_SORTIE / "donnees_nettoyees.csv", index=False, encoding="utf-8")
     print(f"{len(sites)} lignes récupérées ; types de Jeux :")
     print(sites["type_jeux"].value_counts().to_string())
     print("Lignes sans coordonnées :", sites[["latitude", "longitude"]].isna().any(axis=1).sum())
+    print(f"Sites à Paris : {len(site_olympique_paris)} olympiques et {len(site_paralympiques_paris)} paralympiques")
     print("\nSites olympiques :")
     print(site_olympiques.to_string(index=False))
     print("\nSites paralympiques :")
@@ -126,3 +144,5 @@ if __name__ == "__main__":
     main()
 else:
     site_olympiques, site_paralympique = charger_tables_locales()
+    site_olympique_paris = garder_sites_paris(site_olympiques)
+    site_paralympiques_paris = garder_sites_paris(site_paralympique)
