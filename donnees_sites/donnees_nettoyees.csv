@@ -1,0 +1,64 @@
+code_site,nom_site,type_jeux,sports,date_debut,date_fin,date_debut_source,date_fin_source,dates_corrigees,latitude,longitude,categorie_source
+CDM,Arena Champ de Mars,paralympique,"Para Judo (PJUD), Rugby fauteuil (PWRU)",2024-08-29,2024-09-07,2024-08-29,2024-09-07,False,48.8531,2.30252,venue-paralympic
+CTX,Centre national de tir de Châteauroux,olympique,Tir (SHO),2024-07-27,2024-08-05,2024-07-27,2024-08-05,False,46.8157,1.7582,venue-olympic
+INV,Invalides,paralympique,"Para Tir à l'arc (PARC), Para Athlétisme - arrivée Marathon (PATM)",2024-08-29,2024-09-08,2024-08-29,2024-09-08,False,48.85704803,2.312835932,venue-paralympic
+SP6,Arena Paris Sud 6,paralympique,Goalball (PGBL),2024-08-29,2024-09-05,2024-08-29,2024-09-05,False,48.829381,2.290865,venue-paralympic
+VE2,Stade BMX de Saint-Quentin-en-Yvelines,olympique,BMX Racing (BMX),2024-08-01,2024-08-02,2024-09-01,2024-09-02,True,48.78800979,2.03498269,venue-olympic
+BCY,Arena Bercy,paralympique,Basketball fauteuil (PWBK),2024-08-29,2024-09-08,2024-08-29,2024-09-08,False,48.83863,2.378597,venue-paralympic
+EIF,Stade Tour Eiffel,olympique,Volley-ball de plage (VBV),2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.85613,2.2978,venue-olympic
+LBO,Site d’escalade du Bourget,olympique,Escalade (CLB),2024-08-05,2024-08-10,2024-08-05,2024-08-10,False,48.93693402,2.41997931,venue-olympic
+LC4,La Concorde 4,olympique,Skateboard (SKB),2024-08-06,2024-08-07,2024-08-06,2024-08-07,False,48.86573765,2.3220383,venue-olympic
+LCO,La Concorde,olympique,Parc Urbain la Concorde (FCO),2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.86570357457259,2.321214226315764,venue-olympic
+LCO,La Concorde,paralympique,Cérémonie d'ouverture Paralympique (POC),2024-08-28,2024-08-28,2024-09-08,2024-09-08,True,48.86570357457259,2.321214226315764,venue-paralympic
+SP4,Arena Paris Sud 4,olympique,Tennis de table (TTE),2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.830184,2.289033,venue-olympic
+SP4,Arena Paris Sud 4,paralympique,Tennis de table para (PTTE),2024-08-29,2024-09-07,2024-08-29,2024-09-07,False,48.830184,2.289033,venue-paralympic
+SP6,Arena Paris Sud 6,olympique,"Handball (HBL), Haltérophilie (WLF)",2024-07-25,2024-08-11,2024-07-25,2024-08-11,False,48.829381,2.290865,venue-olympic
+BCY,Arena Bercy,olympique,"Basketball (BKB), Gymnastique artistique (GAR), Gymnastique trampoline (GTR)",2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,48.83863,2.378597,venue-olympic
+NAN,Stade de la Beaujoire,olympique,Football (FBL),2024-07-24,2024-08-08,2024-07-24,2024-08-08,False,47.25593494,-1.52469927,venue-olympic
+RGA,Stade Roland Garros,paralympique,Tennis fauteuil (PWTE),2024-08-30,2024-09-07,2024-08-30,2024-09-07,False,48.845968,2.253522,venue-paralympic
+LC1,La Concorde 1,olympique,"Basketball 3x3 (BK3), Breaking (BKG)",2024-07-30,2024-08-10,2024-07-30,2024-08-10,False,48.86640642,2.32119515,venue-olympic
+LC2,La Concorde 2,olympique,BMX freestyle (BMF),2024-07-30,2024-07-31,2024-07-30,2024-07-31,False,48.86504456,2.32119516,venue-olympic
+LGN,Golf National,olympique,Golf (GLF),2024-08-01,2024-08-10,2024-09-01,2024-09-10,True,48.7532,2.0758,venue-olympic
+VN1,Stade nautique de Vaires-sur-Marne - bassin d'eaux calmes,olympique,"Aviron (ROW), Canoë - course en ligne (CSP)",2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.8623,2.6348,venue-olympic
+CTX,Centre national de tir de Châteauroux,paralympique,Para Tir Sportif (PSHO),2024-08-30,2024-09-05,2024-08-30,2024-09-05,False,46.8157,1.7582,venue-paralympic
+DEF,Paris La Défense Arena,paralympique,Para Natation (PSWM),2024-08-29,2024-09-07,2024-08-29,2024-09-07,False,48.8954,2.2294,venue-paralympic
+GRP,Grand Palais,olympique,"Escrime (FEN), Taekwondo (TKW)",2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.86616355,2.3125474,venue-olympic
+PDP,Parc des Princes,olympique,Football (FBL),2024-07-24,2024-08-10,2024-07-24,2024-08-10,False,48.84156974,2.253048697,venue-olympic
+VER,Château de Versailles,olympique,"Sports équestres - dressage (EQD), Sports équestres - concours complet (EQE), Sports équestres - saut d'obstacles (EQJ), Pentathlon moderne (MPN)",2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,48.81432266,2.08452588,venue-olympic
+VN1,Stade nautique de Vaires-sur-Marne - bassin d'eaux calmes,paralympique,"Para Aviron (PROW), Para Canoë (PCSP)",2024-08-30,2024-09-08,2024-08-30,2024-09-08,False,48.8623,2.6348,venue-paralympic
+AQC,Centre Aquatique,olympique,"Natation artistique (SWA), Plongeon (DIV), Water-polo (WPO)",2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.923723,2.35578,venue-olympic
+DEF,Paris La Défense Arena,olympique,"Natation (SWM), Water-polo (WPO)",2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,48.8954,2.2294,venue-olympic
+BOR,Stade de Bordeaux,olympique,Football (FBL),2024-07-24,2024-08-02,2024-07-24,2024-08-02,False,44.8974,-0.5616,venue-olympic
+LC3,La Concorde 3,olympique,Skateboard (SKB),2024-07-28,2024-07-29,2024-07-27,2024-07-28,True,48.86486788,2.32139191,venue-olympic
+MRS,Stade de Marseille,olympique,Football (FBL),2024-07-24,2024-08-06,2024-07-24,2024-08-06,False,43.2698,5.3959,venue-olympic
+STA,Stade de France,olympique,"Athlétisme (ATH), Rugby à 7 (RU7), Cérémonie de clôture (OCC)",2024-07-24,2024-08-11,2024-07-24,2024-08-11,False,48.924475,2.360127,venue-olympic
+VE1,Vélodrome National de Saint-Quentin-en-Yvelines,olympique,Cyclisme sur piste (CTR),2024-08-05,2024-08-11,2024-08-05,2024-08-11,False,48.78800979,2.03498269,venue-olympic
+LIL,Stade Pierre Mauroy,olympique,"Basketball (BKB), Handball (HBL)",2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,50.61190661,3.13047318,venue-olympic
+STE,Stade Geoffroy-Guichard,olympique,Football (FBL),2024-07-24,2024-07-31,2024-07-24,2024-07-31,False,45.4607,4.3902,venue-olympic
+YDM,Stade Yves-du-Manoir,olympique,Hockey (HOC),2024-07-27,2024-08-09,2024-07-27,2024-08-09,False,48.92934371,2.24777122,venue-olympic
+CDM,Arena Champ de Mars,olympique,"Judo (JUD), Lutte (WRE)",2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,48.8531,2.30252,venue-olympic
+EIF,Stade Tour Eiffel,paralympique,Cécifoot (PFBB),2024-09-01,2024-09-07,2024-09-01,2024-09-07,False,48.85613,2.2978,venue-paralympic
+HDV,Hôtel de Ville,olympique,Athlétisme - départ Marathon (ATM),2024-08-10,2024-08-11,2024-08-10,2024-08-11,False,48.8563881,2.35222203,venue-olympic
+SP1,Arena Paris Sud 1,paralympique,Boccia (PBOC),2024-08-29,2024-09-05,2024-08-29,2024-09-05,False,48.832968,2.2840069,venue-paralympic
+ELA,Colline d’Elancourt,olympique,Cyclisme VTT (MTB),2024-07-28,2024-07-29,2024-07-28,2024-07-29,False,48.78981063,1.9642379,venue-olympic
+LCS,La Courneuve,paralympique,Para Athlétisme - départ Marathon (PATM),2024-09-08,2024-09-08,2024-09-08,2024-09-08,False,48.9372382,2.3994101,venue-paralympic
+LYO,Stade de Lyon,olympique,Football (FBL),2024-07-24,2024-08-09,2024-07-24,2024-08-09,False,45.76514165,4.98199275,venue-olympic
+INV,Invalides,olympique,"Athlétisme - arrivée Marathon (ATM), Cyclisme sur route - départ Contre-la-montre (CRD), Tir à l'arc (ARC)",2024-07-25,2024-08-11,2024-07-25,2024-08-11,False,48.85704803,2.312835932,venue-olympic
+NIC,Stade de Nice,olympique,Football (FBL),2024-07-24,2024-07-31,2024-07-24,2024-07-31,False,43.7051,7.1926,venue-olympic
+STA,Stade de France,paralympique,"Para Athlétisme (PATH), Cérémonie de clôture Paralympique (PCC)",2024-08-30,2024-09-08,2024-08-30,2024-09-08,False,48.924475,2.360127,venue-paralympic
+ALX,Pont Alexandre III,olympique,"Cyclisme sur route - arrivée Contre-la-montre (CRD), Natation marathon (OWS), Triathlon (TRI)",2024-07-27,2024-08-09,2024-07-27,2024-08-09,False,48.8637,2.3134,venue-olympic
+NPA,Arena Paris Nord,olympique,"Boxe (BOX), Pentathlon moderne (MDN)",2024-07-27,2024-08-08,2024-07-27,2024-08-08,False,48.9721,2.5149,venue-olympic
+TAH,Tahiti Teahupo'o,olympique,Surf (SRF),2024-07-27,2024-08-05,2024-07-27,2024-07-30,True,-17.86693,-149.25208,venue-olympic
+VE1,Vélodrome National de Saint-Quentin-en-Yvelines,paralympique,Para Cyclisme sur piste (PCTR),2024-08-29,2024-09-01,2024-08-29,2024-09-01,False,48.78800979,2.03498269,venue-paralympic
+VER,Château de Versailles,paralympique,Para Equitation (PEQU),2024-09-03,2024-09-07,2024-09-03,2024-09-07,False,48.81432266,2.08452588,venue-paralympic
+VN2,Stade nautique de Vaires-sur-Marne - stade d'eaux vives,olympique,Canoë-kayak slalom (CSL),2024-07-27,2024-08-05,2024-07-27,2024-08-05,False,48.86223209583829,2.6395463613678416,venue-olympic
+TRO,Trocadéro,olympique,"Athlétisme marche (ATW), Cyclisme sur route - Course sur route (CRD)",2024-08-01,2024-08-07,2024-08-01,2024-08-07,False,48.85972558,2.29221884,venue-olympic
+ALX,Pont Alexandre III,paralympique,Para Triathlon (PTRI),2024-09-02,2024-09-02,2024-09-01,2024-09-02,True,48.8637,2.3134,venue-paralympic
+GRP,Grand Palais,paralympique,"Escrime fauteuil (PWFE), Para Taekwondo (PTKW)",2024-08-29,2024-09-07,2024-08-29,2024-09-07,False,48.86616355,2.3125474,venue-paralympic
+CPL,Arena Porte de la Chapelle,olympique,"Badminton (BDM), Gymnastique rythmique (GRY)",2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.8997292,2.3605141,venue-olympic
+CPL,Arena Porte de la Chapelle,paralympique,"Para badminton (PBDM), Para Haltérophilie (PPWL)",2024-08-29,2024-09-08,2024-08-29,2024-09-08,False,48.8997292,2.3605141,venue-paralympic
+CSB,Clichy-sous-Bois,paralympique,Para cyclisme sur route (PCRD),2024-09-04,2024-09-07,2024-09-04,2024-09-07,False,48.906345,2.553544,venue-paralympic
+MAM,Marina de Marseille,olympique,Voile (SAL),2024-07-28,2024-08-09,2024-07-28,2024-08-08,True,43.2661,5.3678,venue-olympic
+NPA,Arena Paris Nord,paralympique,Volleyball assis (PVBS),2024-08-29,2024-09-07,2024-08-29,2024-09-07,False,48.9721,2.5149,venue-paralympic
+RGA,Stade Roland Garros,olympique,"Tennis (TEN), Boxe (BOX)",2024-07-27,2024-08-10,2024-07-27,2024-08-10,False,48.845968,2.253522,venue-olympic
+SP1,Arena Paris Sud 1,olympique,Volley-ball (VVO),2024-07-27,2024-08-11,2024-07-27,2024-08-11,False,48.832968,2.2840069,venue-olympic
