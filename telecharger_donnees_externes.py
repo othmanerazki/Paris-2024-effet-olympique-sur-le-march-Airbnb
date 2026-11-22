@@ -1,13 +1,12 @@
-"""Télécharge les données qui prolongent la base Airbnb 2024 dans le temps.
+"""Télécharge les données utilisées par regression_sur_le_prix.ipynb en plus des relevés 2024.
 
 Exécution : python telecharger_donnees_externes.py
-Tout est enregistré dans donnees_externes/ (dossier exclu de git, environ 1,3 Go).
+Tout est enregistré dans donnees_externes/ (dossier exclu de git, environ 160 Mo).
 
 Sources (vérifiées le 21 novembre 2026) :
-- Inside Airbnb : seuls les relevés des 12 derniers mois sont publics
-  (novembre 2025 → septembre 2026) ; les plus anciens renvoient une erreur 403.
-- Hugging Face : jeu kraina/airbnb_multicity (relevés résumés juin 2022 → mars 2023).
-- Eurostat et INSEE : séries mensuelles agrégées, par API.
+- Inside Airbnb : relevés publics de juin à septembre 2026, comparaison « sans Jeux ».
+  Seuls les relevés des 12 derniers mois sont publics ; les plus anciens renvoient une erreur 403.
+- Eurostat et INSEE : séries mensuelles agrégées, par API, pour le contexte.
 """
 
 import itertools
@@ -20,13 +19,8 @@ import pandas as pd
 
 DOSSIER = Path(__file__).resolve().parent / "donnees_externes"
 
-INSIDE_AIRBNB = "https://data.insideairbnb.com/france/ile-de-france/paris/{date}/data/{fichier}"
-RELEVES_INSIDE_AIRBNB = [
-    "2025-11-12", "2025-12-13", "2026-01-17", "2026-02-18", "2026-03-21", "2026-04-19",
-    "2026-05-23", "2026-06-16", "2026-07-15", "2026-08-15", "2026-09-16",
-]
-
-HUGGING_FACE = "https://huggingface.co/datasets/kraina/airbnb_multicity/resolve/main/data/all_airbnb.parquet"
+INSIDE_AIRBNB = "https://data.insideairbnb.com/france/ile-de-france/paris/{date}/data/listings.csv.gz"
+RELEVES_INSIDE_AIRBNB = ["2026-06-16", "2026-07-15", "2026-08-15", "2026-09-16"]
 
 # Nuitées réservées via Airbnb, Booking et Expedia, Île-de-France, par mois
 EUROSTAT = (
@@ -47,14 +41,9 @@ def telecharger(url, chemin):
 
 
 def inside_airbnb():
-    """Annonces de chaque relevé public, et avis du dernier relevé seulement :
-    ce fichier contient déjà tous les avis depuis 2010."""
+    """Annonces des relevés de l'été 2026."""
     for date in RELEVES_INSIDE_AIRBNB:
-        telecharger(INSIDE_AIRBNB.format(date=date, fichier="listings.csv.gz"),
-                    DOSSIER / "insideairbnb" / f"listings_{date}.csv.gz")
-    dernier = RELEVES_INSIDE_AIRBNB[-1]
-    telecharger(INSIDE_AIRBNB.format(date=dernier, fichier="reviews.csv.gz"),
-                DOSSIER / "insideairbnb" / f"reviews_{dernier}.csv.gz")
+        telecharger(INSIDE_AIRBNB.format(date=date), DOSSIER / "insideairbnb" / f"listings_{date}.csv.gz")
 
 
 def eurostat_mensuel():
@@ -76,8 +65,10 @@ def eurostat_mensuel():
 
 
 def series_agregees():
-    telecharger(HUGGING_FACE, DOSSIER / "kraina_all_airbnb.parquet")
-    eurostat_mensuel().to_csv(DOSSIER / "eurostat_nuitees_plateformes_idf.csv", index=False)
+    chemin = DOSSIER / "eurostat_nuitees_plateformes_idf.csv"
+    if not chemin.exists():
+        DOSSIER.mkdir(parents=True, exist_ok=True)
+        eurostat_mensuel().to_csv(chemin, index=False)
     telecharger(INSEE, DOSSIER / "insee_hotellerie_paris.xml")
 
 
