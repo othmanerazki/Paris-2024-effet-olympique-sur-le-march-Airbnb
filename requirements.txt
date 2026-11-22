@@ -1,0 +1,9 @@
+pandas>=2.0
+numpy>=1.26
+matplotlib>=3.8
+shapely>=2.0
+s3fs>=2024.0
+jupyterlab>=4.0
+ipykernel>=6.0
+statsmodels>=0.14
+scipy>=1.11
