@@ -8,3 +8,5 @@ ipykernel>=6.0
 statsmodels>=0.14
 linearmodels>=6.0
 scipy>=1.11
+nbclient>=0.10
+nbconvert>=7.0

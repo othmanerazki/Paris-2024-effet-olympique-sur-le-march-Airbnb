@@ -6,7 +6,7 @@ Chaque ligne de la source est conservée : un site peut apparaître plusieurs fo
 
 from io import BytesIO
 from pathlib import Path
-from urllib.request import urlopen
+from importation_données import recuperer_sites, charger_donnees_sites
 
 import pandas as pd
 
@@ -52,12 +52,7 @@ CORRECTIONS_DATES = {
 }
 
 
-def recuperer_sites():
-    """Télécharge le CSV officiel et retourne ses octets et sa table brute."""
-    with urlopen(URL_SOURCE, timeout=30) as reponse:
-        contenu = reponse.read()
-    table = pd.read_csv(BytesIO(contenu), sep=";", dtype=str)
-    return contenu, table
+
 
 
 def preparer_sites(table):
@@ -117,7 +112,7 @@ def charger_tables_locales():
     fichier = DOSSIER_SORTIE / "donnees_nettoyees.csv"
     if not fichier.exists():
         raise FileNotFoundError("Données absentes : lancez d'abord python sites_competition.py")
-    table = pd.read_csv(fichier, parse_dates=["date_debut", "date_fin", "date_debut_source", "date_fin_source"])
+    table = charger_donnees_sites()
     return separer_sites(table)
 
 
@@ -142,7 +137,7 @@ def main():
 
 if __name__ == "__main__":
     main()
-else:
+elif (DOSSIER_SORTIE / "donnees_nettoyees.csv").exists():
     site_olympiques, site_paralympique = charger_tables_locales()
     site_olympique_paris = garder_sites_paris(site_olympiques)
     site_paralympiques_paris = garder_sites_paris(site_paralympique)

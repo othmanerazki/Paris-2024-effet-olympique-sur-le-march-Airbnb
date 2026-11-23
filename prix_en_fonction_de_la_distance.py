@@ -1,3 +1,8 @@
+"""Courbes exploratoires : prix moyens en dollars par tranche de 1 km.
+
+Les relevés suivent la liste explicite des cartes ; mars, doublon de juin,
+est exclu. Les effectifs et médianes sont exportés pour contrôler les moyennes.
+"""
 import matplotlib
 
 matplotlib.use("Agg")
@@ -7,7 +12,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from importation_données import charger_donnees_paris
+from importation_données import FICHIERS, charger_annonces, charger_contours
+from carte_sites_paris import preparer_population
+import json
+from shapely.geometry import shape
+from shapely.ops import unary_union
 from sites_competition import charger_tables_locales, garder_sites_paris
 
 
@@ -20,22 +29,27 @@ def calculer_distance(lat1, lon1, lat2, lon2):
       np.sin(dlat / 2.0) ** 2
       + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2.0) ** 2
   )
-  c = 2 * np.arcsin(np.sqrt(a))
+  c = 2 * np.arcsin(np.sqrt(np.clip(a, 0, 1)))
   return R * c
 
 
 def analyser_prix_par_distance(df, lat_site, lon_site):
   df = df.copy()
   df["price_clean"] = (
-      df["price"].astype(str).str.replace(r"[^\d.]", "", regex=True)
+      df["price"].astype(str).str.replace(r"[^\d.\-]", "", regex=True)
   )
   df["price_clean"] = pd.to_numeric(df["price_clean"], errors="coerce")
+  for colonne in ["latitude", "longitude"]:
+    df[colonne] = pd.to_numeric(df[colonne], errors="coerce")
+  df = df.loc[df["price_clean"].gt(0) & df["latitude"].between(-90, 90)
+              & df["longitude"].between(-180, 180)].copy()
   df["distance_km"] = calculer_distance(
       df["latitude"], df["longitude"], lat_site, lon_site
   )
   df = df.dropna(subset=["price_clean", "distance_km"])
   df["tranche_km"] = np.floor(df["distance_km"]).astype(int)
-  resultats = df.groupby("tranche_km")["price_clean"].mean().reset_index()
+  resultats = df.groupby("tranche_km")["price_clean"].agg(
+      price_clean="mean", mediane="median", effectif="count").reset_index()
   return resultats
 
 
@@ -45,7 +59,9 @@ def nettoyer_nom_fichier(texte):
 
 
 def main():
-  dfs = charger_donnees_paris()
+  contours = charger_contours()
+  paris = unary_union([shape(f["geometry"]) for f in contours])
+  dfs = {mois: preparer_population(charger_annonces(mois), paris)[0] for mois in FICHIERS}
   olympiques, _ = charger_tables_locales()
   sites_paris = garder_sites_paris(olympiques)
 
@@ -65,11 +81,13 @@ def main():
 
     fig, ax = plt.subplots(figsize=(12, 8))
     courbes_tracees = 0
+    controles = []
 
     for mois, df in dfs.items():
       if df is not None and not df.empty:
         res = analyser_prix_par_distance(df, lat, lon)
         if not res.empty:
+          controles.append(res.assign(releve=mois, code_site=code))
           ax.plot(
               res["tranche_km"],
               res["price_clean"],
@@ -85,9 +103,9 @@ def main():
       continue
 
     ax.set_xlabel("Distance au site (km)", fontsize=12)
-    ax.set_ylabel("Prix moyen (€)", fontsize=12)
+    ax.set_ylabel("Prix moyen (dollars)", fontsize=12)
     ax.set_title(
-        f"Prix moyen par tranche de distance - Tous les mois\nSite : {nom}"
+        f"Prix moyen par tranche de distance — relevés mensuels 2024\nSite : {nom}"
         f" ({code})",
         fontsize=13,
     )
@@ -98,6 +116,8 @@ def main():
     nom_fichier = dossier_sortie / f"site_{code}_{nom_propre}.png"
 
     plt.savefig(nom_fichier, bbox_inches="tight")
+    pd.concat(controles, ignore_index=True).to_csv(
+        dossier_sortie / f"controle_distances_{code}.csv", index=False)
     plt.close()
 
 

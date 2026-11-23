@@ -14,7 +14,7 @@ import re
 import sys
 import tempfile
 from pathlib import Path
-from urllib.parse import quote
+from importation_données import FICHIERS, charger_annonces, charger_contours, charger_donnees_sites
 
 import matplotlib
 if "--sans-fenetre" in sys.argv:
@@ -35,19 +35,7 @@ from shapely.ops import unary_union
 DOSSIER = Path(__file__).resolve().parent
 CONTOURS = DOSSIER / "contours_arrondissements.geojson"
 SITES = DOSSIER / "donnees_sites" / "donnees_nettoyees.csv"
-FICHIERS = {
-    "janvier": "etiennealpy/données paris/listing_13_janvier_2024",
-    "fevrier": "etiennealpy/données paris/listing_14_fevrier_2024",
-    "avril": "etiennealpy/données paris/listing_17_avril_2024.csv",
-    "mai": "etiennealpy/données paris/listing_11_mai_2024.csv",
-    "juin": "etiennealpy/données paris/listing_10_juin_2024",
-    "juillet": "etiennealpy/données paris/listing_14_juillet_2024.csv",
-    "aout": "etiennealpy/données paris/listing_09_aout_2024.csv",
-    "septembre": "etiennealpy/données paris/listing_6_septembre_2024",
-    "octobre": "etiennealpy/données paris/listing_07_octobre_2024.csv",
-    "novembre": "etiennealpy/données paris/listing_09_novembre_2024.csv",
-    "decembre": "etiennealpy/données paris/listing_16_decembre_2024",
-}
+
 # Bornes fixes communes à toutes les cartes : les valeurs situées au-delà des
 # bornes utilisent les couleurs extrêmes de la légende.
 PRIX_MIN_ECHELLE = 100
@@ -63,29 +51,19 @@ def charger_sites():
     if not SITES.exists():
         raise FileNotFoundError("Exécutez d'abord sites_competition.py pour récupérer les sites.")
     sites = {}
-    with SITES.open(encoding="utf-8", newline="") as fichier:
-        for ligne in csv.DictReader(fichier):
-            if ligne["code_site"] not in SITES_PARIS:
-                continue
-            site = sites.setdefault(ligne["code_site"], {
-                "code": ligne["code_site"], "lat": float(ligne["latitude"]), "lon": float(ligne["longitude"]), "jeux": set(),
-            })
-            site["jeux"].add(ligne["type_jeux"])
+    for ligne in charger_donnees_sites().to_dict("records"):
+        if ligne["code_site"] not in SITES_PARIS:
+            continue
+        site = sites.setdefault(ligne["code_site"], {
+            "code": ligne["code_site"], "lat": float(ligne["latitude"]), "lon": float(ligne["longitude"]), "jeux": set(),
+        })
+        site["jeux"].add(ligne["type_jeux"])
     if not sites:
         raise ValueError("Aucun site parisien trouvé.")
     return list(sites.values())
 
 
-@lru_cache(maxsize=1)
-def charger_annonces(mois):
-    chemin = FICHIERS[mois]
-    print(f"Chargement des annonces : {chemin} ...", flush=True)
-    url = "https://minio.lab.sspcloud.fr/" + quote(chemin, safe="/")
-    df = pd.read_csv(url, usecols=["id", "latitude", "longitude", "price", "last_scraped", "room_type", "availability_30"], dtype={"price": "string"})
-    df["prix"] = pd.to_numeric(df["price"].str.replace(r"[^\d.\-]", "", regex=True), errors="coerce")
-    for colonne in ("latitude", "longitude"):
-        df[colonne] = pd.to_numeric(df[colonne], errors="coerce")
-    return df
+
 
 
 def preparer_population(df, paris):
@@ -135,7 +113,7 @@ def creer_carte(mois="aout", afficher=True, type_logement="tous"):
         sortie = dossier_controles / f"carte_prix_paris_{mois}_{type_logement}.png"
     else:
         sortie = dossier_cartes / f"carte_prix_paris_{mois}.png"
-    contours = json.loads(CONTOURS.read_text(encoding="utf-8"))["features"]
+    contours = charger_contours()
     geometries = [shape(f["geometry"]) for f in contours]
     if len(geometries) != 20:
         raise ValueError("Le fichier des contours doit contenir les 20 arrondissements.")
@@ -159,7 +137,7 @@ def creer_carte(mois="aout", afficher=True, type_logement="tous"):
     dates_texte = f"{dates.min():%d/%m/%Y}–{dates.max():%d/%m/%Y}" if not dates.empty else "dates non renseignées"
 
     fig = plt.figure(figsize=(15, 10), facecolor="#f6f8fb")
-    ax = fig.add_axes([0.06, 0.22, 0.88, 0.64])
+    ax = fig.add_axes([0.08, 0.26, 0.86, 0.57])
     xmin, ymin, xmax, ymax = paris.bounds
     for geo in geometries:
         for poly in (geo.geoms if geo.geom_type == "MultiPolygon" else [geo]):
@@ -208,7 +186,10 @@ def creer_carte(mois="aout", afficher=True, type_logement="tous"):
     ax.set_xlim(xmin - .005, xmax + .005)
     ax.set_ylim(ymin - .004, ymax + .004)
     ax.set_aspect(1 / math.cos(math.radians(48.86)))
-    ax.axis("off")
+    ax.set_xlabel("Longitude (degrés est)", fontsize=8)
+    ax.set_ylabel("Latitude (degrés nord)", fontsize=8)
+    ax.tick_params(labelsize=7)
+    ax.grid(False)
     fig.text(.07, .95, "Paris 2024", fontsize=27, weight="bold", color="#15334e")
     titres_types = {"tous": "Tous types de logements", "entiers": "Logements entiers", "chambres": "Chambres privées"}
     fig.text(.07, .908, "Prix affiché médian des annonces Airbnb à Paris", fontsize=17, color="#34586c")

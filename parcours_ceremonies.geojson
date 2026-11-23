@@ -1,0 +1,29 @@
+{
+  "type": "FeatureCollection",
+  "description": "Tracés de travail approximatifs saisis manuellement en WGS84 pour mesurer une proximité de quartier. Ce ne sont ni des traces GPS officielles ni des périmètres de sécurité.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "olympique", "nom": "Défilé sur la Seine et arrivée à Iéna–Trocadéro", "date": "2024-07-26",
+        "source": "https://www.olympics.com/ioc/news/paris-2024-olympic-games-opening-ceremony-flame-cauldron",
+        "methode": "Ligne simplifiée passant par des repères sur la Seine entre Austerlitz et Iéna, puis le Trocadéro. Incertitude de numérisation ; tester des seuils de 0,5, 0,75 et 1 km."
+      },
+      "geometry": {"type": "LineString", "coordinates": [
+        [2.3654,48.8435],[2.3625,48.8468],[2.3573,48.8501],[2.3512,48.8520],
+        [2.3452,48.8548],[2.3413,48.8570],[2.3358,48.8584],[2.3293,48.8597],
+        [2.3218,48.8632],[2.3137,48.8635],[2.3066,48.8630],[2.3002,48.8615],
+        [2.2924,48.8599],[2.2890,48.8620]
+      ]}
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "paralympique", "nom": "Bas des Champs-Élysées vers la Concorde", "date": "2024-08-28",
+        "source": "https://www.paris.fr/pages/accessibilite-des-quais-hauts-pendant-la-ceremonie-d-ouverture-27905",
+        "methode": "Segment simplifié du bas des Champs-Élysées vers la Concorde ; départ approximatif au niveau du rond-point. Ne représente pas les accès spectateurs."
+      },
+      "geometry": {"type": "LineString", "coordinates": [[2.3095,48.8696],[2.3140,48.8680],[2.3187,48.8656],[2.3212,48.8656]]}
+    }
+  ]
+}
