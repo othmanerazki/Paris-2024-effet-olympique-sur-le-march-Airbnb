@@ -1,7 +1,7 @@
 """Télécharge les relevés Inside Airbnb 2026 utilisés par regression_sur_le_prix.ipynb.
 
-Exécution : python telecharger_donnees_externes.py
-Tout est enregistré dans donnees_externes/insideairbnb/ (dossier exclu de git, environ 150 Mo).
+Exécution : python src/telecharger_donnees_externes.py
+Tout est enregistré dans data/donnees_externes/insideairbnb/ (dossier exclu de git, environ 150 Mo).
 
 Source (vérifiée le 21 novembre 2026) : relevés publics Inside Airbnb de juin à septembre 2026,
 année de comparaison « sans Jeux ». Seuls les relevés des 12 derniers mois sont publics ;
@@ -12,7 +12,7 @@ from pathlib import Path
 from urllib.request import urlretrieve
 
 
-DOSSIER = Path(__file__).resolve().parent / "donnees_externes"
+DOSSIER = Path(__file__).resolve().parent.parent / "data" / "donnees_externes"
 
 INSIDE_AIRBNB = "https://data.insideairbnb.com/france/ile-de-france/paris/{date}/data/listings.csv.gz"
 RELEVES_INSIDE_AIRBNB = ["2026-06-16", "2026-07-15", "2026-08-15", "2026-09-16"]

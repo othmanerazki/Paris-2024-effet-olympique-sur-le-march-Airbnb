@@ -12,7 +12,7 @@ import pandas as pd
 
 
 URL_SOURCE = "https://www.data.gouv.fr/api/1/datasets/r/5a0599d1-ad3f-42d1-b64c-204ee19cf520"
-DOSSIER_SORTIE = Path(__file__).resolve().parent / "donnees_sites"
+DOSSIER_SORTIE = Path(__file__).resolve().parent.parent / "data" / "donnees_sites"
 
 # Codes des points de la source situés dans les limites administratives de Paris.
 # Sélection vérifiée par croisement des coordonnées avec les arrondissements :
@@ -111,7 +111,7 @@ def charger_tables_locales():
     """Charge les deux tables depuis le fichier nettoyé local."""
     fichier = DOSSIER_SORTIE / "donnees_nettoyees.csv"
     if not fichier.exists():
-        raise FileNotFoundError("Données absentes : lancez d'abord python sites_competition.py")
+        raise FileNotFoundError("Données absentes : lancez d'abord python src/sites_competition.py")
     table = charger_donnees_sites()
     return separer_sites(table)
 

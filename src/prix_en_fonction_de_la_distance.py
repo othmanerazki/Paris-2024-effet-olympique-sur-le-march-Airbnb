@@ -66,7 +66,7 @@ def main():
   olympiques, _ = charger_tables_locales()
   sites_paris = garder_sites_paris(olympiques)
 
-  dossier_sortie = Path("graphiques_sites_paris_tous_les_mois")
+  dossier_sortie = Path(__file__).resolve().parent.parent / "figures" / "sites_par_mois"
   dossier_sortie.mkdir(exist_ok=True)
 
   sites_uniques = sites_paris.drop_duplicates(subset=["code_site"])
