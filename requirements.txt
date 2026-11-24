@@ -1,19 +1,43 @@
-# Versions utilisées pour la vérification du projet avec Python 3.14.6.
-# Ces versions nécessitent Python >= 3.12 ; Python 3.14 est recommandé.
+# Environnement de référence : Python 3.14.6.
+# Python >= 3.12 requis par ces versions ; utiliser 3.14 pour reproduire
+# l'environnement dans lequel le notebook final a été exécuté.
+#
+# Installation : python -m pip install -r requirements.txt
+# Vérification : python -m pip check
+# Les commandes de création de l'environnement et de collecte sont dans README.md.
+#
+# Les versions des dépendances ci-dessous sont fixées (==). Leurs dépendances
+# transitives sont résolues par pip : ce fichier n'est pas un verrouillage complet.
+# Les modules de la bibliothèque standard (pathlib, json, urllib...) sont fournis
+# avec Python et ne doivent pas être installés séparément.
+
+# Données : tableaux, calculs numériques et lecture des CSV.
 numpy==2.5.5
 pandas==3.1.1
+
+# Statistiques : régression linéaire, tests et modèles de panel à effets fixes.
 scipy==1.18.1
-matplotlib==3.11.2
-shapely==2.2.0
 statsmodels==0.15.0
 linearmodels==7.1
-# s3fs et fsspec doivent utiliser des versions compatibles.
+
+# Figures et géométrie : courbes, cartes, contours et distances aux parcours.
+matplotlib==3.11.2
+shapely==2.2.0
+
+# Accès au stockage S3 de SSP Cloud dans les fonctions d'importation.
+# Versions associées pour éviter un conflit entre s3fs et fsspec.
 s3fs==2026.9.0
 fsspec==2026.9.0
-# Lecture, affichage et exécution des notebooks, dans Jupyter ou VS Code.
+
+# Notebook : affichage des images et tableaux, et noyau Python.
 ipython==9.18.1
 ipykernel==7.4.0
+
+# Reproduction : lecture des .ipynb et exécution complète dans un noyau neuf.
+# nbconvert sert à la commande --to notebook --execute décrite dans le README.
 nbformat==5.11.1
 nbclient==0.11.0
 nbconvert==7.17.2
+
+# Interface JupyterLab ; le notebook peut aussi être ouvert dans VS Code.
 jupyterlab==4.6.6

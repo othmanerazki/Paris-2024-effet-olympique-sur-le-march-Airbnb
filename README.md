@@ -1,8 +1,8 @@
 # Airbnb et les Jeux de Paris 2024
 
-Le projet étudie l'évolution de l'offre Airbnb et des prix affichés à Paris en 2024, puis cherche si les annonces proches des sites de compétition ont connu une hausse particulière pendant les Jeux. Tous les prix sont exprimés en **dollars par nuit**, sans conversion.
+Le projet étudie l'évolution de l'offre Airbnb et des prix affichés à Paris en 2024, puis cherche si les annonces proches des sites de compétition ont connu une hausse particulière pendant les Jeux. Tous les prix sont exprimés en **dollars par nuit**, sans conversion en euros.
 
-**Le document de rendu est `Final report.ipynb`.** Il contient les analyses descriptives, les neuf cartes de prix, les dix-neuf courbes par site, l'étude des cérémonies et le code de la régression d'Othmane. Les modèles y sont directement exécutables ; le rapport ne lit pas les résultats d'un autre notebook pour les afficher.
+**Le document de rendu est `Final report.ipynb`.** Il contient les analyses descriptives, les neuf cartes de prix, les dix-neuf courbes par site, l'étude des cérémonies et les régressions linéaires. Les modèles y sont directement exécutables.
 
 ## Environnement
 
@@ -33,7 +33,7 @@ La première commande télécharge et prépare les sites olympiques et paralympi
 
 La lecture des CSV distants peut représenter plusieurs gigaoctets transférés lors de la première préparation. Le cache conserve uniquement les colonnes utiles, sous forme compressée, en gardant toutes les lignes et les prix manquants. Les fichiers déjà présents sont réutilisés. Les manifestes associés indiquent les URL, les dates de récupération et les colonnes disponibles. La troisième commande recalcule les tableaux et le graphique des cérémonies dans `resultats/`.
 
-Les dossiers `donnees_sites/`, `donnees_airbnb/` et `donnees_externes/` sont exclus de Git. Il faut donc les préparer sur une nouvelle machine. Les téléchargements dépendent du maintien de l'accès aux sources distantes ; les URL et dates des relevés 2026 sont fixées dans le programme. Une fois les quinze relevés et les sites préparés, les cellules du rapport utilisent les données locales.
+Les dossiers `donnees_sites/`, `donnees_airbnb/` et `donnees_externes/` sont exclus de Git pour ne pas laisser les données en libre service. Il faut donc les préparer sur une nouvelle machine. Les téléchargements dépendent du maintien de l'accès aux sources distantes ; les URL et dates des relevés 2026 sont fixées dans le programme. Une fois les quinze relevés et les sites préparés, les cellules du rapport utilisent les données locales.
 
 `telecharger_donnees_externes.py` est un ancien téléchargement des fichiers 2026 complets dans `donnees_externes/`. Il ne prépare pas le cache commun attendu par le rapport et ne fait pas partie du parcours de reproduction ci-dessus.
 
@@ -47,12 +47,12 @@ Pour une exécution complète en ligne de commande, avec sauvegarde des sorties 
 .\.venv\Scripts\python.exe -m jupyter nbconvert --to notebook --execute --inplace "Final report.ipynb" --ExecutePreprocessor.kernel_name=airbnb-paris --ExecutePreprocessor.timeout=900
 ```
 
-Le calcul s'effectue dans un noyau neuf. Il peut prendre plusieurs minutes selon la machine. Le rapport contient lui-même les cellules de préparation et d'estimation : il n'est pas nécessaire d'exécuter d'abord `regression_sur_le_prix.ipynb`.
+Le calcul s'effectue dans un noyau neuf. Il peut prendre plusieurs minutes selon la machine. Le rapport appelle directement les fonctions de préparation et d’estimation de `regression_lineaire.py` : il n'est pas nécessaire d'exécuter d'abord `regression_sur_le_prix.ipynb`.
 
-Le notebook séparé est la version de travail de la régression. Pour le réexécuter indépendamment depuis les mêmes données :
+Tout le code de préparation statistique, de régression linéaire et de panel est regroupé dans `regression_lineaire.py`. Pour lancer ces calculs sans ouvrir de notebook :
 
 ```powershell
-.\.venv\Scripts\python.exe verifier_regression.py
+.\.venv\Scripts\python.exe regression_lineaire.py
 ```
 
 ## Figures du dépôt
@@ -73,7 +73,7 @@ Les cartes utilisent une échelle de prix commune et au moins cinq prix par mail
 | Fichier | Rôle |
 | --- | --- |
 | `Final report.ipynb` | Rapport complet : données, analyses descriptives, cartes, distances, cérémonies, régressions et conclusion. |
-| `regression_sur_le_prix.ipynb` | Notebook de travail d'Othmane : modèles hédoniques et triple différence. |
+| `regression_sur_le_prix.ipynb` | Explicaiton régression linéaire, obtenus avec les mêmes fonctions Python que le rapport. |
 | `importation_données.py` | Collecte Airbnb 2024/2026, cache partagé, chargement des sites et fichiers géographiques ; séries contextuelles optionnelles. |
 | `sites_competition.py` | Préparation des sites, corrections de dates documentées et séparation des deux Jeux. |
 | `carte_sites_paris.py` | Nettoyage parisien et cartes des prix médians par maille. |
@@ -81,8 +81,8 @@ Les cartes utilisent une échelle de prix commune et au moins cinq prix par mail
 | `analyse_ceremonies.py` | Comparaison des prix près des deux tracés simplifiés et sensibilité aux seuils. |
 | `parcours_ceremonies.geojson` | Tracés de travail approximatifs, avec sources ; ce ne sont pas des traces GPS officielles. |
 | `contours_arrondissements.geojson` | Contours des vingt arrondissements utilisés pour sélectionner les annonces parisiennes. |
-| `verifier_regression.py` | Exécution complète du notebook de travail de la régression. |
-| `resultats/` | Tableaux et graphique des cérémonies, lus dans le rapport. |
+| `regression_lineaire.py` | Code complet des modèles de régression linéaire; tableaux affichés dans le notebook ou le terminal, et graphique de régression. |
+| `resultats/` | Tableaux et graphique des cérémonies ; graphique de la régression. |
 | `cartes prix/`, `graphiques_sites_paris_tous_les_mois/` | Figures incluses dans le rapport. |
 
 ## Sources et portée des résultats
