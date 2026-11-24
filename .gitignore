@@ -1,4 +1,12 @@
-/donnees_sites/
+# Données téléchargées ou générées (à préparer localement, voir README)
+/data/donnees_sites/
+/data/donnees_airbnb/
+/data/donnees_externes/
+
+# Python / Jupyter
 __pycache__/
-/donnees_airbnb/
-/donnees_externes/
+.ipynb_checkpoints/
+.venv/
+
+# Système
+.DS_Store

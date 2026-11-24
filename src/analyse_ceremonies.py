@@ -19,7 +19,7 @@ from shapely.ops import unary_union
 
 from importation_données import lire_releve, charger_parcours, charger_contours
 
-RACINE = Path(__file__).resolve().parent
+RACINE = Path(__file__).resolve().parent.parent
 MOIS = ["juin", "juillet", "aout", "septembre"]
 
 

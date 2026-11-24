@@ -1,7 +1,7 @@
 """Carte des prix Airbnb observés à Paris et des sites des Jeux de 2024.
 
-python carte_sites_paris.py --mois aout
-python carte_sites_paris.py --mois juillet --sans-fenetre
+python src/carte_sites_paris.py --mois aout
+python src/carte_sites_paris.py --mois juillet --sans-fenetre
 Les prix affichés sont issus des annonces, pas des réservations.
 """
 import argparse
@@ -32,9 +32,9 @@ from shapely import contains_xy
 from shapely.geometry import shape
 from shapely.ops import unary_union
 
-DOSSIER = Path(__file__).resolve().parent
-CONTOURS = DOSSIER / "contours_arrondissements.geojson"
-SITES = DOSSIER / "donnees_sites" / "donnees_nettoyees.csv"
+DOSSIER = Path(__file__).resolve().parent.parent
+CONTOURS = DOSSIER / "data" / "contours_arrondissements.geojson"
+SITES = DOSSIER / "data" / "donnees_sites" / "donnees_nettoyees.csv"
 
 # Bornes fixes communes à toutes les cartes : les valeurs situées au-delà des
 # bornes utilisent les couleurs extrêmes de la légende.
@@ -49,7 +49,7 @@ MONUMENTS = [("Arc de Triomphe", 48.8738, 2.2950), ("Tour Eiffel", 48.8584, 2.29
 
 def charger_sites():
     if not SITES.exists():
-        raise FileNotFoundError("Exécutez d'abord sites_competition.py pour récupérer les sites.")
+        raise FileNotFoundError("Exécutez d'abord src/sites_competition.py pour récupérer les sites.")
     sites = {}
     for ligne in charger_donnees_sites().to_dict("records"):
         if ligne["code_site"] not in SITES_PARIS:
@@ -105,9 +105,9 @@ def ajouter_icone_monument(ax, nom, lon, lat):
 
 def creer_carte(mois="aout", afficher=True, type_logement="tous"):
     seuil = 5
-    dossier_cartes = DOSSIER / "cartes prix"
+    dossier_cartes = DOSSIER / "figures" / "cartes_prix"
     dossier_cartes.mkdir(exist_ok=True)
-    dossier_controles = dossier_cartes / "analyses complementaires"
+    dossier_controles = dossier_cartes / "analyses_complementaires"
     if type_logement != "tous":
         dossier_controles.mkdir(exist_ok=True)
         sortie = dossier_controles / f"carte_prix_paris_{mois}_{type_logement}.png"

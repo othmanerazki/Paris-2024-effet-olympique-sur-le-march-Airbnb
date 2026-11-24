@@ -4,9 +4,9 @@ Ce fichier contient la préparation statistique, les modèles hédoniques, le
 panel, la triple différence et le graphique. La collecte reste centralisée
 dans importation_données.py. Les notebooks appellent ces mêmes fonctions.
 
-Exécution : python regression_lineaire.py
-Prérequis : python importation_données.py --source sites
-            python importation_données.py
+Exécution : python src/regression_lineaire.py
+Prérequis : python src/importation_données.py --source sites
+            python src/importation_données.py
 Sorties : tableaux dans le terminal et graphique dans resultats/.
 Les notebooks affichent directement les tableaux renvoyés par les fonctions.
 """
@@ -27,7 +27,7 @@ from importation_données import lire_releve, chemin_cache, charger_contours
 from carte_sites_paris import preparer_population
 from sites_competition import charger_tables_locales
 
-RACINE = Path(__file__).resolve().parent
+RACINE = Path(__file__).resolve().parent.parent
 MOIS_ETE = {"juin": 6, "juillet": 7, "aout": 8, "septembre": 9}
 CENTRE_PARIS = (48.85341, 2.34880)
 TRANCHE = "C(tranche, Treatment('plus de 3 km'))"
@@ -43,7 +43,7 @@ def charger_donnees_regression():
     absents = [str(chemin_cache(a, m)) for a in [2024, 2026] for m in MOIS_ETE
                if not chemin_cache(a, m).exists()]
     if absents:
-        raise FileNotFoundError("Préparer les relevés avec python importation_données.py.\n"
+        raise FileNotFoundError("Préparer les relevés avec python src/importation_données.py.\n"
                                 + "\n".join(absents))
     paris = unary_union([shape(f["geometry"]) for f in charger_contours()])
     releves = {}

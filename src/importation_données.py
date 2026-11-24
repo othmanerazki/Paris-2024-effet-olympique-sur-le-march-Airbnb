@@ -4,10 +4,10 @@ Ce module regroupe Airbnb 2024/2026, le cache, les sites de compétition,
 les fichiers géographiques et les séries contextuelles Eurostat/INSEE.
 Les traitements statistiques et les graphiques restent dans leurs scripts.
 
-python importation_données.py                        # huit relevés d'été
-python importation_données.py --tous-mois-2024        # année 2024 et été 2026
-python importation_données.py --source sites         # préparer les sites
-python importation_données.py --source contexte      # Eurostat et INSEE
+python src/importation_données.py                        # huit relevés d'été
+python src/importation_données.py --tous-mois-2024        # année 2024 et été 2026
+python src/importation_données.py --source sites         # préparer les sites
+python src/importation_données.py --source contexte      # Eurostat et INSEE
 """
 import argparse
 from concurrent.futures import ThreadPoolExecutor
@@ -23,11 +23,12 @@ from urllib.request import urlopen, urlretrieve
 import pandas as pd
 import s3fs
 
-RACINE = Path(__file__).resolve().parent
-CACHE = RACINE / "donnees_airbnb"
-DOSSIER_EXTERNE = RACINE / "donnees_externes"
-CONTOURS = RACINE / "contours_arrondissements.geojson"
-SITES = RACINE / "donnees_sites" / "donnees_nettoyees.csv"
+RACINE = Path(__file__).resolve().parent.parent
+DONNEES = RACINE / "data"
+CACHE = DONNEES / "donnees_airbnb"
+DOSSIER_EXTERNE = DONNEES / "donnees_externes"
+CONTOURS = DONNEES / "contours_arrondissements.geojson"
+SITES = DONNEES / "donnees_sites" / "donnees_nettoyees.csv"
 
 
 
@@ -225,7 +226,7 @@ def recuperer_sites():
 def charger_donnees_sites():
     """Lit la table locale préparée ; ne déclenche pas de téléchargement."""
     if not SITES.exists():
-        raise FileNotFoundError("Préparer les sites avec python importation_données.py --source sites")
+        raise FileNotFoundError("Préparer les sites avec python src/importation_données.py --source sites")
     return pd.read_csv(SITES, parse_dates=["date_debut", "date_fin", "date_debut_source", "date_fin_source"])
 
 
@@ -236,7 +237,7 @@ def charger_contours():
 
 def charger_parcours():
     """Lit les tracés simplifiés des cérémonies conservés dans le dépôt."""
-    return json.loads((RACINE / "parcours_ceremonies.geojson").read_text(encoding="utf-8"))["features"]
+    return json.loads((DONNEES / "parcours_ceremonies.geojson").read_text(encoding="utf-8"))["features"]
 
 
 def main():
