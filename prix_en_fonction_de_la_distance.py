@@ -5,7 +5,8 @@ est exclu. Les effectifs et médianes sont exportés pour contrôler les moyenne
 """
 import matplotlib
 
-matplotlib.use("Agg")
+if __name__ == "__main__":
+  matplotlib.use("Agg")
 from pathlib import Path
 import re
 import matplotlib.pyplot as plt

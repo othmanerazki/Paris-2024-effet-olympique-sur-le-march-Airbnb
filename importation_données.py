@@ -5,6 +5,7 @@ les fichiers géographiques et les séries contextuelles Eurostat/INSEE.
 Les traitements statistiques et les graphiques restent dans leurs scripts.
 
 python importation_données.py                        # huit relevés d'été
+python importation_données.py --tous-mois-2024        # année 2024 et été 2026
 python importation_données.py --source sites         # préparer les sites
 python importation_données.py --source contexte      # Eurostat et INSEE
 """
@@ -164,10 +165,8 @@ def lire_releve(annee, mois):
 def charger_annonces(mois):
     chemin = FICHIERS[mois]
     print(f"Chargement des annonces : {chemin} ...", flush=True)
-    url = "https://minio.lab.sspcloud.fr/" + quote(chemin, safe="/")
-    cache = RACINE / "donnees_airbnb" / f"releve_2024_{mois}.csv.gz"
-    df = pd.read_csv(cache if cache.exists() else url,
-                     usecols=["id", "latitude", "longitude", "price", "last_scraped", "room_type", "availability_30"], dtype={"price": "string"})
+    colonnes = ["id", "latitude", "longitude", "price", "last_scraped", "room_type", "availability_30"]
+    df = lire_releve(2024, mois)[colonnes].copy()
     df["prix"] = pd.to_numeric(df["price"].str.replace(r"[^\d.\-]", "", regex=True), errors="coerce")
     for colonne in ("latitude", "longitude"):
         df[colonne] = pd.to_numeric(df[colonne], errors="coerce")
@@ -244,10 +243,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", choices=["airbnb", "sites", "contexte", "tout"], default="airbnb")
     parser.add_argument("--annees", nargs="+", type=int, choices=[2024,2026], default=[2024,2026])
+    parser.add_argument("--tous-mois-2024", action="store_true",
+                        help="Mettre en cache les 11 relevés distincts de 2024 au lieu des seuls mois d'été.")
     args = parser.parse_args()
     if args.source in ["airbnb", "tout"]:
         with ThreadPoolExecutor(max_workers=4) as pool:
-            futures = [pool.submit(telecharger_releve, annee, mois) for annee in args.annees for mois in MOIS]
+            futures = [pool.submit(telecharger_releve, annee, mois)
+                       for annee in args.annees
+                       for mois in (FICHIERS if annee == 2024 and args.tous_mois_2024 else MOIS)]
             for future in futures:
                 future.result()
     if args.source in ["sites", "tout"]:

@@ -1,12 +1,19 @@
-pandas>=2.0
-numpy>=1.26
-matplotlib>=3.8
-shapely>=2.0
-s3fs>=2024.0
-jupyterlab>=4.0
-ipykernel>=6.0
-statsmodels>=0.14
-linearmodels>=6.0
-scipy>=1.11
-nbclient>=0.10
-nbconvert>=7.0
+# Versions utilisées pour la vérification du projet avec Python 3.14.6.
+# Ces versions nécessitent Python >= 3.12 ; Python 3.14 est recommandé.
+numpy==2.5.5
+pandas==3.1.1
+scipy==1.18.1
+matplotlib==3.11.2
+shapely==2.2.0
+statsmodels==0.15.0
+linearmodels==7.1
+# s3fs et fsspec doivent utiliser des versions compatibles.
+s3fs==2026.9.0
+fsspec==2026.9.0
+# Lecture, affichage et exécution des notebooks, dans Jupyter ou VS Code.
+ipython==9.18.1
+ipykernel==7.4.0
+nbformat==5.11.1
+nbclient==0.11.0
+nbconvert==7.17.2
+jupyterlab==4.6.6
